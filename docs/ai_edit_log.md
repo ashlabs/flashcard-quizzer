@@ -145,6 +145,26 @@ For each AI interaction, create a new entry with the following structure:
 
 ---
 
+### 2026-09-10 - Persistent Missed-Term History
+
+**Context:** Adaptive mode needed a way to remember terms missed in the previous quiz session. A first-time user also needed to start normally without an existing history file.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I asked Claude Code to generate tests for loading, validating, saving, and creating directories for a JSON history file. I then asked it to implement `HistoryDataError`, `load_missed_terms`, and `save_missed_terms`.
+
+**AI Response:** Claude Code generated parameterized tests for invalid history structures and implemented a JSON-backed history module. Missing files return an empty list, while malformed or structurally invalid files raise application-specific errors.
+
+**Changes Made:** During review, I strengthened the parameterized tests to verify helpful error-message content instead of checking only the exception type. I also refactored a long validation expression and error message so both Black and flake8 accepted the code.
+
+**Reasoning:** Checking message content prevents an empty or generic exception from passing the tests. Returning an empty list for a missing file supports first-time users, while rejecting malformed existing data avoids silently losing history.
+
+**Outcome:** All 9 history tests passed. The complete project suite passed with 73 tests and 97% coverage. Black, flake8, and mypy passed.
+
+**Lessons Learned:** Persistence code needs separate treatment for absent data and corrupted data. A missing file can represent a valid initial state, while an existing invalid file should be reported clearly.
+
+---
+
 ### Entry Template
 ```
 ## [Date] - [Brief Description]
