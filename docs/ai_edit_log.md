@@ -125,6 +125,25 @@ For each AI interaction, create a new entry with the following structure:
 
 ---
 
+### 2026-09-10 - Terminal UI and Summary Display
+
+**Context:** The quiz engine needed terminal-specific functions for collecting answers, displaying immediate feedback, and presenting session statistics without adding input and output logic to the engine.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I asked Claude Code to generate tests for answer prompting, correct and incorrect feedback, summary metrics, missed terms, and perfect sessions. I then asked it to implement `prompt_for_answer`, `show_feedback`, and `show_summary` in a separate `ui.py` module.
+
+**AI Response:** Claude Code generated tests using pytest's `monkeypatch` and `capsys` features. It implemented terminal input and output functions and formatted the session statistics using aligned labels.
+
+**Changes Made:** During review, I strengthened the summary test to verify the `Total Questions` and `Accuracy` labels rather than checking only numeric text. I also added visible column separators so the metrics were clearly presented as a two-column table. During that manual refinement, I accidentally omitted an f-string prefix from the accuracy value.
+
+**Reason…Reasoning:** Label assertions prove that values are associated with the correct metrics. Column separators make the required summary table clearer. The failed test exposed the missing f-string prefix because the expression was printed literally instead of being evaluated.
+
+**Outcome:** I corrected the f-string, and all 9 UI tests passed. The complete suite passed with 64 tests and 96% coverage. Black, flake8, and mypy also passed.
+
+**Lessons Learned:** Tests protect manual refinements as well as AI-generated code. A small small formatting change can introduce a real defect, and output-focused tests can detect it before integration.
+
+---
 
 ### Entry Template
 ```
