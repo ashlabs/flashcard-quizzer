@@ -54,9 +54,7 @@ def create_strategy(
     if mode == ADAPTIVE_MODE:
         return AdaptiveStrategy(missed_terms)
     supported = ", ".join(MODES)
-    error_message = (
-        f"Unsupported quiz mode {mode!r}: choose one of {supported}"
-    )
+    error_message = f"Unsupported quiz mode {mode!r}: choose one of {supported}"
     raise ValueError(error_message)
 
 
@@ -84,8 +82,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=DEFAULT_HISTORY_PATH,
         help=(
-            "path of the missed term history file "
-            f"(default: {DEFAULT_HISTORY_PATH})"
+            "path of the missed term history file " f"(default: {DEFAULT_HISTORY_PATH})"
         ),
     )
     parser.add_argument(

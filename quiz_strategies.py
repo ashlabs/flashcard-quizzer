@@ -38,7 +38,7 @@ class RandomStrategy(QuizStrategy):
 
     def __init__(self, seed: int | None = None) -> None:
         """Keep a generator of this strategy's own, seeded if asked."""
-        self._random = random.Random(seed)
+        self._random = random.Random(seed)  # nosec B311
 
     def order_cards(self, cards: Sequence[Flashcard]) -> list[Flashcard]:
         """Return a new list holding the cards in a shuffled order."""

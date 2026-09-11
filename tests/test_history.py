@@ -12,11 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from history import (
-    HistoryDataError,
-    load_missed_terms,
-    save_missed_terms,
-)
+from history import HistoryDataError, load_missed_terms, save_missed_terms
 
 INVALID_HISTORIES = [
     pytest.param(

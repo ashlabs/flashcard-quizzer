@@ -17,11 +17,7 @@ import pytest
 from history import load_missed_terms
 from main import create_strategy, main
 from models.flashcard import Flashcard
-from quiz_strategies import (
-    AdaptiveStrategy,
-    RandomStrategy,
-    SequentialStrategy,
-)
+from quiz_strategies import AdaptiveStrategy, RandomStrategy, SequentialStrategy
 
 DECK = [("el gato", "the cat"), ("el perro", "the dog")]
 

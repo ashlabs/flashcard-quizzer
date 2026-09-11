@@ -38,10 +38,7 @@ def _parse_missed_terms(data: Any, path: Path) -> list[str]:
         raise HistoryDataError(message)
     terms_are_strings = all(isinstance(term, str) for term in terms)
     if not terms_are_strings:
-        message = (
-            f'History "{MISSED_TERMS_KEY}" must contain only '
-            f"strings: {path}"
-        )
+        message = f'History "{MISSED_TERMS_KEY}" must contain only ' f"strings: {path}"
         raise HistoryDataError(message)
     return list(terms)
 
