@@ -65,6 +65,26 @@ For each AI interaction, create a new entry with the following structure:
 
 ---
 
+### 2026-09-10 - Sequential Quiz Strategy
+
+**Context:** The application requires sequential, random, and adaptive quiz modes. I needed a shared interface that would allow the quiz engine to use any ordering algorithm without containing mode-specific logic.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I asked Claude Code to generate tests for an abstract `QuizStrategy` and a concrete `SequentialStrategy`. After reviewing the tests, I asked it to implement only the abstract interface and sequential behavior.
+
+**AI Response:** Claude Code created tests for inheritance, order preservation, returning a new list, avoiding mutation, and handling an empty deck. It then implemented `QuizStrategy` with an abstract `order_cards` method and implemented `SequentialStrategy` using `list(cards)`.
+
+**Changes Made:** During test review, I noticed that checking `isinstance(strategy, QuizStrategy)` proved inheritance but did not prove that `QuizStrategy` was abstract. I manually added a test using `inspect.isabstract()`.
+
+**Reasoning:** The abstractness test verifies an important part of the design pattern rather than only its class hierarchy. Returning a new list also prevents a strategy from unexpectedly changing the caller's deck.
+
+**Outcome:** All six strategy tests passed. The complete project suite passed with 35 tests and 94% coverage. Black, flake8, and mypy also passed.
+
+**Lessons Learned:** Inheritance alone does not establish an abstract contract. Tests for design patterns should verify the design behavior that matters, not merely class names or relationships.
+
+---
+
 
 ### Entry Template
 ```
