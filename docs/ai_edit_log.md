@@ -165,6 +165,28 @@ For each AI interaction, create a new entry with the following structure:
 
 ---
 
+### 2026-09-11 - Complete CLI Integration
+
+**Context:** The individual project modules were complete but had not yet been connected into a runnable command-line application. The original `main.py` still demonstrated the starter task manager.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I asked Claude Code to generate integration tests for strategy selection, complete quiz sessions, adaptive history, invalid decks, empty decks, and malformed history. I then asked it to replace the starter entry point with an argparse-based Flashcard Quizzer CLI.
+
+**AI Response:** Claude Code generated tests that invoked `main()` with argument lists and scripted terminal input. It implemented command-line parsing, strategy construction, quiz orchestration, history loading and saving, summary display, explicit exit codes, and graceful error reporting.
+
+**Changes Made:** During review, I strengthened the shared error assertion to require an `Error:` prefix. I also added an assertion proving that a previously missed term is removed from history after it is answered correctly in adaptive mode. The generated production implementation was accepted without logical changes.
+
+**Reasoning:** Verifying only a nonempty error message would allow unclear output to pass. Checking that mastered terms leave history proves that adaptive mode reflects the latest learning state rather than permanently prioritizing every past mistake.
+
+**Outcome:** All 10 CLI tests passed. Manual tests confirmed sequential ordering, seeded random ordering, adaptive prioritization across sessions, case-insensitive answers, summary output, history updates, and missing-file handling without a traceback. The complete automated suite passed with 83 tests.
+
+**Lessons Learned:** Integration tests expose whether independently correct components work together. Directly passing argument lists and scripted input made the complete CLI testable without starting subprocesses.
+
+---
+
+
+
 ### Entry Template
 ```
 ## [Date] - [Brief Description]
