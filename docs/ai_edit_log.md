@@ -105,6 +105,26 @@ For each AI interaction, create a new entry with the following structure:
 
 ---
 
+### 2026-09-10 - Quiz Engine and Session Statistics
+
+**Context:** I needed to connect flashcards and ordering strategies into a quiz workflow while keeping terminal input and output separate from the application logic.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I asked Claude Code to create tests for a `QuizEngine` that accepts an ordering strategy, an answer provider, and a feedback provider. The tests also defined a `SessionStats` result containing totals, accuracy, and missed terms. After reviewing the tests, I requested the minimal production implementation.
+
+**AI Response:** Claude Code generated a `RecordingSession` test double and a reverse-order strategy for testing dependency injection. It implemented `SessionStats` as a dataclass and implemented `QuizEngine.run()` to order cards, request answers, provide immediate feedback, and collect results.
+
+**Changes Made:** I accepted the generated tests and implementation without logical changes because they were focused, testable, and consistent with the planned architecture.
+
+**Reasoning:** Injecting input and feedback callables keeps the engine independent of `input()` and `print()`. This separation allows the same engine to support a terminal interface now and another interface later. A `default_factory` for missed terms avoids shared mutable state between sessions.
+
+**Outcome:** All seven quiz-engine tests passed. The complete project suite passed with 55 tests and 96% coverage. Black, flake8, and mypy also passed.
+
+**Lessons Learned:** Separating orchestration from input and output makes interactive code straightforward to test. Small dependency-injection boundaries can improve flexibility without requiring a framework or complex mocking.
+
+---
+
 
 ### Entry Template
 ```
