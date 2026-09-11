@@ -1,218 +1,303 @@
-# AI-Assisted Development Project Starter
+# Flashcard Quizzer
 
-This is a Python project template for learning AI-assisted software development. You will build upon this foundation to create a functional application while collaborating with AI coding assistants to apply software engineering best practices including design patterns, separation of concerns, test-driven development, and comprehensive documentation.
+Flashcard Quizzer is a Python command-line learning application that loads flashcards from JSON, quizzes the learner, provides immediate feedback, and records missed terms for future adaptive sessions.
 
-## 🚀 Getting Started
+The project demonstrates test-driven development (TDD), modular design, data validation, state persistence, and the Strategy design pattern.
 
-### Prerequisites
+## Features
 
-- Python 3.8 or higher
-- pip (Python package manager)
-- Git
+* Loads flashcard decks from JSON files.
+* Validates malformed files and invalid deck structures.
+* Compares answers in a case-insensitive manner and ignores surrounding whitespace.
+* Provides immediate feedback (`correct` or `incorrect`).
+* Supports multiple quiz modes: `sequential`, `random`, and `adaptive`.
+* Supports reproducible random ordering with a seed.
+* Saves missed terms between sessions.
+* Prioritizes previously missed terms in adaptive mode.
+* Displays total questions, correct answers, accuracy, and missed terms.
+* Gracefully handles errors and reports user-facing error messages without exposing stack traces.
 
-### Setup Instructions
+## Requirements
 
-1. **Create a virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\\Scripts\\activate
-   ```
+* Python 3.10 or later
+* pip
+* Git
 
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Python 3.10 or later is required because the application uses modern type annotation syntax such as `str | Path`.
 
-3. **Run the application:**
-   ```bash
-   python main.py
-   ```
+## Setup
 
-4. **Run tests:**
-   ```bash
-   python -m pytest
-   ```
-
-### 🛠️ Development Tools
-
-#### Code Quality Tools
-
-- **Black**: Code formatter
-  ```bash
-  black .
-  ```
-
-- **isort**: Import organizer
-  ```bash
-  isort .
-  ```
-
-- **flake8**: Linting
-  ```bash
-  flake8 .
-  ```
-
-- **mypy**: Type checking
-  ```bash
-  mypy .
-  ```
-
-- **pytest**: Testing framework
-  ```bash
-  python -m pytest --cov=. --cov-report=html
-  ```
-
-#### Pre-commit Hooks (Optional)
-
-Set up pre-commit hooks for automatic code quality checks:
+Clone the repository and enter the project directory:
 
 ```bash
-pre-commit install
+git clone https://github.com/ashlabs/flashcard-quizzer.git
+cd flashcard-quizzer
 ```
+
+Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+On Windows PowerShell, activate it with:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Install the dependencies:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+## Flashcard Deck Format
+
+A deck is a JSON array containing one object per flashcard. Every object must contain string values named `front` and `back`.
+
+Example:
+
+```json
+[
+  {
+    "front": "HTTP",
+    "back": "Hypertext Transfer Protocol"
+  },
+  {
+    "front": "DNS",
+    "back": "Domain Name System"
+  }
+]
+```
+
+A sample deck is available in `examples/server_acronyms.json`.
+
+The loader provides helpful error messages when:
+
+* The deck file does not exist
+* The file does not contain valid JSON
+* The top-level JSON value is not a list
+* A card is not an object
+* A card is missing `front` or `back`
+* Either field is not a string
+
+An empty JSON list is a valid data structure, but the command-line application will report that the deck has no cards to quiz.
+
+## Usage
+
+
+```bash
+python main.py DECK_PATH [--mode MODE] [--history HISTORY_PATH] [--seed SEED]
+```
+
+### Sequential Mode
+
+Sequential mode presents cards in the order stored in the JSON file. This is the default mode.
+
+```bash
+python main.py examples/server_acronyms.json
+```
+
+The mode can also be specified explicitly.
+
+```bash
+python main.py examples/server_acronyms.json --mode sequential
+```
+
+### Random Mode
+
+Random mode presents the cards in shuffled order.
+
+```bash
+python main.py examples/server_acronyms.json --mode random
+```
+
+Supply a seed to reproduce the shuffle.
+
+```bash
+python main.py examples/server_acronyms.json --mode random --seed 7
+```
+
+Random ordering uses pseudo-randomness because card shuffling is not a security-sensitive operation.
+
+### Adaptive Mode
+
+Adaptive mode reads the missed-term history and presents previously missed cards first. Cards retain their original relative order within the missed and remaining groups.
+
+```bash
+python main.py examples/server_acronyms.json --mode adaptive
+```
+
+A custom history path can be supplied.
+
+```bash
+python main.py examples/server_acronyms.json --mode adaptive --history data/my_history.json
+```
+
+The default history path is `data/history.json`. Missing folders are created automatically when history is saved.
+
+At the end of every successful session, the history is replaced with the terms missed during that session. If a learner answers every card correctly the history list is empty.
+
+### Command-Line Help
+
+Display all available options with:
+
+```bash
+python main.py --help
+```
+
+## Answer Checking
+
+Answers are compared using:
+
+* Strip Leading and trailing whitespace
+* Unicode-aware case-insensitive comparison
+
+For example, these answers are treated as equivalent:
+
+```text
+Hypertext Transfer Protocol
+hypertext tranSFer protocol
+  HYPERTEXT TRANSFER PROTOCOL
+```
+
+## Example Session
+
+```text
+Term: HTTP
+Your answer: Hypertext Transfer Protocol
+Correct!
+
+Term: DNS
+Your answer: domain name service
+Incorrect. The answer is: Domain Name System
+
+=== Quiz Summary ===
+Total Questions    | 2
+Correct Answers    | 1
+Accuracy           | 50.00%
+
+Missed Terms
+  DNS
+```
+
+## Architecture
+
+The application separates its responsibilities across small modules:
+
+```text
+flashcard-quizzer/
+├── data_loader.py
+├── history.py
+├── main.py
+├── models/
+│   ├── __init__.py
+│   └── flashcard.py
+├── quiz_engine.py
+├── quiz_strategies.py
+├── ui.py
+├── examples/
+│   └── server_acronyms.json
+├── tests/
+│   ├── test_data_loader.py
+│   ├── test_flashcard.py
+│   ├── test_history.py
+│   ├── test_main.py
+│   ├── test_quiz_engine.py
+│   ├── test_quiz_strategies.py
+│   └── test_ui.py
+└── docs/
+    ├── ai_edit_log.md
+    ├── design_patterns.md
+    ├── project_rubric.md
+    └── report_template.md
+```
+
+Module responsibilities:
+
+|Module|Responsibility|
+|---|---|
+|`models/flashcard.py`|Defines the flashcard domain model and answer checking.|
+|`data_loader.py`|Loads and validates JSON decks.|
+|`quiz_strategies.py`|Defines sequential, random, and adaptive ordering.|
+|`quiz_engine.py`|Conducts a session and calculates its statistics.|
+|`ui.py`|Owns terminal input and output.|
+|`history.py`|Validates and persists missed terms.|
+|`main.py`|Parses command-line arguments and connects the components.|
+
+### Strategy Pattern
+
+`QuizStrategy` defines the interface used to order cards. The concrete implementations are:
+
+* `SequentialStrategy`
+* `RandomStrategy`
+* `AdaptiveStrategy`
+
+`QuizEngine` depends on the strategy interface rather than selecting an ordering algorithm itself. This allows quiz behavior to change without changing the engine.
+
+Input and feedback are also passed to the engine as callables, keeping terminal behavior separate from quiz logic and making the engine straightforward to test.
 
 ## Testing
 
-The project includes comprehensive unit tests demonstrating proper testing practices for AI-assisted development.
-
-### Tests Break Down
-
-**TaskManager Tests (`test_task_manager.py`):**
-- `test_add_task_returns_id()` - Verifies task creation returns valid ID
-- `test_get_task_by_id()` - Tests task retrieval with proper data structure
-- `test_complete_task()` - Validates task completion with timestamps
-- `test_delete_task()` - Ensures proper task deletion and error handling
-- `test_get_nonexistent_task_raises_error()` - Tests error handling for invalid IDs
-
-**FileHandler Tests (`test_file_handler.py`):**
-- `test_save_data_creates_file()` - Verifies JSON file creation and content
-- `test_load_nonexistent_file_returns_empty_dict()` - Tests graceful error handling
-- `test_file_exists()` - Validates file existence checking
-- `test_delete_file()` - Tests file cleanup functionality
-- `test_list_files()` - Verifies directory listing capabilities
+Run the complete test suite:
 
 ```bash
-# Run all tests
-pytest
-
-# Run with coverage report (aim for >80% coverage)
-python -m pytest --cov=. --cov-report=html
-
-# Run specific test file with verbose output
-python -m pytest tests/test_task_manager.py -v
-
-# Run all quality checks
-black . && isort . && flake8 . && mypy . && pytest
+python -m pytest -q
 ```
 
-## Project Instructions
+Run tests with the configured statement and branch coverage report:
 
-This section contains all the student deliverables for this project.
-
-### Learning Objectives
-- **AI Collaboration**: Learn to effectively work with AI assistants to generate, review, and refactor code while maintaining code quality
-- **Software Engineering**: Apply design patterns, separation of concerns, and modular architecture
-- **Test-Driven Development**: Write and maintain comprehensive unit tests with good coverage
-- **Code Quality**: Use linting, formatting, and type checking tools for professional-grade code
-- **Documentation**: Document AI interactions and development decisions throughout the process
-
-### AI-Assisted Development Workflow
-
-#### 1. Planning Phase
-- Use AI to help break down requirements into smaller, manageable tasks
-- Ask for architectural suggestions and design pattern recommendations
-- Review the `/ai_guidance/prompting_best_practices.md` for effective prompting techniques
-- Use the provided slash commands in `/.claude/commands/` for common tasks
-
-#### 2. Implementation Phase
-- Generate initial code with AI assistance using specific, contextual prompts
-- Always review and understand AI-generated code before accepting it
-- Test AI-generated code thoroughly with various inputs and edge cases
-- Refactor for clarity, maintainability, and adherence to project standards
-
-#### 3. Review Phase
-- Use AI to help identify potential issues or improvements
-- Follow the `/ai_guidance/code_review_checklist.md` for systematic code review
-- Ask for code review suggestions and alternative implementations
-- Validate that the code follows project conventions and security best practices
-
-#### 4. Documentation Phase
-- Document your AI interactions in `/docs/ai_edit_log.md` with specific examples
-- Explain your decisions and modifications to AI suggestions
-- Complete the final report using `/docs/report_template.md`
-- Update this README with new features and learnings
-
-### Assessment Criteria
-
-Your project will be evaluated on:
-
-1. **Functionality**: Does the application work as intended with proper error handling?
-2. **Code Quality**: Is the code well-structured, readable, and maintainable?
-3. **Testing**: Are there comprehensive unit tests with good coverage (>80%)?
-4. **AI Collaboration**: Did you effectively use AI assistance while maintaining code quality?
-5. **Documentation**: Are your AI interactions and decisions well-documented?
-
-### Example AI Prompts
-
-- "Help me implement a priority queue for tasks using the strategy pattern"
-- "Review this code for potential security vulnerabilities"
-- "Suggest improvements to make this code more maintainable"
-- "Help me write comprehensive unit tests for this function"
-
-### AI Guidance Resources
-
-- `/ai_guidance/prompting_best_practices.md` - Learn effective AI prompting techniques
-- `/ai_guidance/code_review_checklist.md` - Systematic approach to reviewing AI-generated code
-- `/.claude/commands/generate-function` - Generate well-structured Python functions
-- `/.claude/commands/review-code` - Get comprehensive code reviews
-- `/.claude/commands/debug-help` - Debug issues with AI assistance
-- `/.claude/commands/refactor-code` - Refactor code with design patterns
-- `/docs/design_patterns.md` - Examples of implementing design patterns with AI assistance
-
-### Project Structure
-
-```
-starter/
-├── main.py                 # Main application entry point
-├── utils/                  # Utility modules
-│   ├── __init__.py
-│   ├── task_manager.py     # Task management functionality
-│   └── file_handler.py     # File I/O operations
-├── tests/                  # Unit test suite
-│   ├── __init__.py
-│   ├── test_task_manager.py
-│   └── test_file_handler.py
-├── docs/                   # Documentation and templates
-│   ├── ai_edit_log.md      # AI interaction tracking
-│   ├── design_patterns.md  # Design pattern examples
-│   └── report_template.md  # Final report template
-├── ai_guidance/            # AI prompting best practices
-│   ├── prompting_best_practices.md
-│   └── code_review_checklist.md
-├── .claude/                # Claude-specific configuration
-│   ├── CLAUDE.md           # Claude configuration
-│   ├── commands/           # Slash commands
-│   └── mcp.json           # MCP configuration
-├── requirements.txt        # Python dependencies
-├── .editorconfig          # Code formatting rules
-└── README.md              # This file
+```bash
+python -m pytest -q --cov=. --cov-report=term-missing
 ```
 
-## Built With
+The project currently contains 68 passing tests and achieves 99.22% total coverage. The configured minimum is 81%, which exceeds the project requirement of 80%.
 
-* [Python](https://www.python.org/) - Core programming language
-* [pytest](https://docs.pytest.org/) - Testing framework for comprehensive unit tests
-* [pytest-cov](https://pytest-cov.readthedocs.io/) - Coverage reporting for tests
-* [Black](https://black.readthedocs.io/) - Code formatter for consistent style
-* [isort](https://pycqa.github.io/isort/) - Import organizer for clean code structure
-* [flake8](https://flake8.pycqa.org/) - Linting tool for code quality
-* [mypy](https://mypy.readthedocs.io/) - Static type checker for better code reliability
-* [pre-commit](https://pre-commit.com/) - Git hook framework for automated quality checks
-* [Claude](https://claude.ai/) - AI assistant for code generation and review
+Run an individual test module with verbose output:
 
-## License
+```bash
+python -m pytest tests/test_quiz_engine.py -v
+```
 
-[License](LICENSE.txt)
+## Code Quality
 
----
+Run all quality checks from the repository root:
 
-**Remember**: The goal is not just to build a working application, but to learn how to effectively collaborate with AI while maintaining high software engineering standards. Take time to understand the code, ask questions, and document your learning journey!
+```bash
+python -m isort --check-only .
+python -m black --check .
+python -m flake8 .
+python -m mypy . --exclude=.venv
+python -m bandit -q -r . -x ./.venv,./tests
+python -m pytest -q --cov=. --cov-report=term-missing
+```
+
+Formatting and linting conventions are stored in `.isort.cfg` and `.flake8`. Coverage configuration is stored in `.coveragerc`.
+
+## Error Handling
+
+Expected file and data problems are converted into application-specific exceptions:
+
+* `FlashcardDataError` for deck loading and validation failures
+* `HistoryDataError` for invalid history data
+
+The command-line entry point catches actionable data and filesystem errors, prints a concise message to standard error, and returns exit status `1`. Successful sessions return exit status `0`.
+
+## AI-Assisted Development
+
+The application was developed iteratively with Claude Code using a test-first workflow. AI-generated suggestions were reviewed, tested, and revised before being accepted.
+
+Supporting documentation includes:
+
+* `prompts.md` for the substantive prompts used during development
+* `docs/ai_edit_log.md` for AI interactions, review decisions, corrections, and lessons learned
+* `ai_guidance/prompting_best_practices.md` for prompting guidance
+* `ai_guidance/code_review_checklist.md` for systematic review guidance
+* `docs/design_patterns.md` for design-pattern notes
+
+## Development Status
+
+The core application, all three quiz strategies, persistent history, CLI integration, automated tests, formatting, linting, type checking, and security scanning are complete.

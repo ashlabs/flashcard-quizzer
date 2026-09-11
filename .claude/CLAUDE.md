@@ -1,134 +1,116 @@
-# Claude Configuration for AI-Assisted Development Course
-
-This document configures Claude to provide optimal assistance for the AI-assisted development course project.
+# Claude Code Instructions for Flashcard Quizzer
 
 ## Project Context
 
-This is a learning project for a software engineering course focused on AI-assisted development. Students are building a Python application while learning to effectively collaborate with AI coding assistants.
+Flashcard Quizzer is a Python 3.10 command-line learning application. It loads flashcards from JSON, quizzes learners using multiple ordering strategies, provides immediate feedback, summarizes results, and stores missed terms for subsequent adaptive sessions.
 
-## Course Objectives
+This is an AI-assisted development course project. Changes must demonstrate sound engineering judgment, test-driven development (TDD), modular design, and critical review of AI-generated work.
 
-Students will:
-- Build a functional Python application with clear requirements and constraints
-- Collaborate effectively with AI assistants while maintaining code quality
-- Apply software engineering principles including design patterns and separation of concerns
-- Develop and maintain a comprehensive unit test suite
-- Document their AI collaboration process and learning journey
+## Development Approach
 
-## Student Responsibilities
+Work in small, reviewable increments:
 
-### Code Quality
-- Review and understand all AI-generated code before accepting it
-- Test AI-generated code thoroughly with various inputs and edge cases
-- Refactor code for clarity, maintainability, and adherence to project standards
-- Implement proper error handling and input validation
-- Follow Python coding conventions (PEP 8) and project style guidelines
+1. Inspect the relevant code and tests before suggesting changes.
+2. Define behavior with tests before implementing new functionality.
+3. Run focused tests while developing.
+4. Run the complete test suite after the focused tests pass.
+5. Run formatting, linting, typing, security, and coverage checks.
+6. Explain important design decisions and tradeoffs.
+7. Do not modify unrelated files.
 
-### Software Engineering Practices
-- Apply appropriate design patterns where beneficial
-- Maintain separation of concerns and modular code structure
-- Write comprehensive unit tests with good coverage (>80%)
-- Use proper version control practices with descriptive commit messages
-- Document code with clear docstrings and comments where necessary
+Do not generate a large implementation when a smaller tested increment will satisfy the request.
 
-### AI Collaboration
-- Write specific, clear prompts that provide context and requirements
-- Critically evaluate AI responses for correctness, security, and efficiency
-- Document all AI interactions in the provided AI edit log
-- Ask for explanations when AI logic is unclear
-- Iterate on AI suggestions to improve code quality
+## Project Architecture
 
-### Documentation
-- Maintain detailed logs of AI interactions and decisions
-- Update project documentation as features are added
-- Complete the final project report with reflections on AI collaboration
-- Document any challenges faced and solutions implemented
+* `models/flashcard.py` defines the Flashcard domain model and answer checking.
+* `data_loader.py` loads and validates JSON flashcard decks.
+* `quiz_strategies.py` contains sequential, random, and adaptive ordering strategies.
+* `quiz_engine.py` runs quiz sessions and calculates session statistics.
+* `ui.py` handles terminal input and output.
+* `history.py` loads and saves missed-term history.
+* `main.py` parses command-line arguments and connects the application components.
+* `tests/` contains the pytest test suite.
+* `examples/` contains sample flashcard decks.
+* `docs/ai_edit_log.md` records significant AI-assisted development interactions.
+* `prompts.md` records the substantive prompts used during development.
 
-## AI Assistant Guidelines
+## Design Requirements
 
-### Code Generation
-- Provide clean, well-documented code that follows Python best practices
-- Include type hints and proper error handling
-- Suggest appropriate design patterns when beneficial
-- Ask clarifying questions if requirements are unclear
+* Use the Strategy pattern for quiz ordering.
+* Keep terminal input and output outside the quiz engine.
+* Inject answer and feedback callables into the engine.
+* Do not mutate caller-owned card sequences.
+* Preserve card order unless the selected strategy intentionally changes it.
+* Use `strip().casefold()` for answer and missed-term normalization.
+* Use custom exceptions for deck and history data failures.
+* Report actionable command-line errors without exposing tracebacks.
+* Use pseudo-randomness only for non-security-sensitive card shuffling.
+* Keep runtime dependencies in the Python standard library.
 
-### Code Review
-- Point out potential security vulnerabilities
-- Suggest improvements for readability and maintainability
-- Identify edge cases that need testing
-- Recommend refactoring opportunities
+## Python Standards
 
-### Educational Support
-- Explain complex concepts and design decisions
-- Provide examples of best practices
-- Suggest learning resources when appropriate
-- Help debug issues and understand error messages
+* Support Python 3.10 or later.
+* Add type annotations to functions and methods.
+* Use concise, useful docstrings.
+* Prefer small functions and explicit names.
+* Preserve exception context with `raise ... from exc` when translating errors.
+* Avoid unnecessary abstractions and dependencies.
+* Keep Black and flake8 configuration consistent.
 
-## Project Structure
+## Testing Standards
 
-The project follows this organization:
-- `main.py` - Application entry point
-- `utils/` - Reusable utility modules
-- `tests/` - Comprehensive unit test suite
-- `docs/` - Project documentation and templates
-- `ai_guidance/` - AI collaboration best practices
-- `.claude/` - Claude-specific configuration
+Tests should cover:
 
-## Development Tools
+* Normal behavior
+* Boundary conditions
+* Invalid input
+* Error translation
+* Non-mutation guarantees
+* Strategy-specific ordering
+* User-visible CLI behavior
+* Persistent history behavior
 
-Students should use these tools for code quality:
-- **pytest** for testing
-- **black** for code formatting
-- **isort** for import organization
-- **flake8** for linting
-- **mypy** for type checking
+Use pytest fixtures and parameterization when they make tests clearer. Use fake or injected callables instead of real terminal interaction in unit tests.
 
-## Common Commands
+The configured coverage threshold is 81%, exceeding the project requirement of greater than 80%.
 
-Students can use these commands during development:
-- `python main.py` - Run the application
-- `pytest` - Run all tests
-- `pytest --cov=. --cov-report=html` - Run tests with coverage
-- `black .` - Format code
-- `isort .` - Organize imports
-- `flake8 .` - Check linting
-- `mypy .` - Type checking
+## Quality Commands
 
-## Assessment Criteria
+Run the complete quality gate with:
 
-Projects will be evaluated on:
-1. **Functionality** - Does the application work correctly?
-2. **Code Quality** - Is the code well-structured and maintainable?
-3. **Testing** - Are there comprehensive tests with good coverage?
-4. **AI Collaboration** - Did the student effectively work with AI while maintaining quality?
-5. **Documentation** - Are AI interactions and decisions well-documented?
+```bash
+python -m isort --check-only .
+python -m black --check .
+python -m flake8 .
+python -m mypy . --exclude=.venv
+python -m bandit -q -r . -x ./.venv,./tests
+python -m pytest -q --cov=. --cov-report=term-missing
+```
 
-## Best Practices for AI Collaboration
+Run the application with:
 
-### Effective Prompting
-- Be specific about requirements and constraints
-- Provide context about the existing codebase
-- Ask for explanations of complex logic
-- Request code reviews and improvement suggestions
+```bash
+python main.py examples/server_acronyms.json
+```
 
-### Code Review Process
-- Always understand AI-generated code before using it
-- Test thoroughly with various inputs and edge cases
-- Check for security vulnerabilities and edge cases
-- Refactor for clarity and maintainability
+Run an adaptive session with:
 
-### Learning Approach
-- Use AI as a learning tool, not a replacement for understanding
-- Ask follow-up questions to deepen understanding
-- Experiment with different approaches
-- Document lessons learned throughout the process
+```bash
+python main.py examples/server_acronyms.json --mode adaptive
+```
 
-## Remember
+Run a reproducible random session with:
 
-The goal is not just to build a working application, but to learn effective AI collaboration while maintaining high software engineering standards. Students should:
-- Take ownership of their code quality
-- Use AI as a powerful tool while exercising good judgment
-- Focus on learning and understanding, not just completion
-- Document their journey for future reference and assessment
+```bash
+python main.py examples/server_acronyms.json --mode random --seed 7
+```
 
-Success in this project comes from thoughtful collaboration with AI, not from accepting AI suggestions without review and understanding.
+## AI Collaboration Expectations
+
+* Treat AI output as a proposal requiring review.
+* Explain generated code before accepting it.
+* Verify recommendations against the project requirements.
+* Correct unnecessary complexity, missing edge cases, and formatting problems.
+* Do not claim checks passed unless they were actually run.
+* Record meaningful prompts, accepted changes, rejected suggestions, manual corrections, and lessons learned.
+* Never add credentials, API keys, virtual environments, caches, coverage data, or generated learner history to version control.
