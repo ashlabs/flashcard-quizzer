@@ -10,7 +10,9 @@ the loader returns the equivalent Flashcard objects in file order.
 import json
 from pathlib import Path
 
-from data_loader import load_flashcards
+import pytest
+
+from data_loader import FlashcardDataError, load_flashcards
 from models.flashcard import Flashcard
 
 
@@ -36,3 +38,23 @@ class TestLoadFlashcards:
         assert loaded[0].back == "the library"
         assert loaded[1].front == "el libro"
         assert loaded[1].back == "the book"
+
+    def test_load_flashcards_raises_helpful_error_when_file_is_missing(
+        self, tmp_path: Path
+    ) -> None:
+        """Test that a missing file raises a helpfulcodes data error."""
+        missing_path = tmp_path / "no_such_deck.json"
+
+        expected_message = "Flashcard file not found"
+        with pytest.raises(FlashcardDataError, match=expected_message):
+            load_flashcards(missing_path)
+
+    def test_load_flashcards_raises_helpful_error_for_malformed_json(
+        self, tmp_path: Path
+    ) -> None:
+        """Test that a file that is not valid JSON raises a helpful error."""
+        malformed_path = tmp_path / "malformed.json"
+        malformed_path.write_text("this is not json {{", encoding="utf-8")
+
+        with pytest.raises(FlashcardDataError, match="Invalid JSON"):
+            load_flashcards(malformed_path)
