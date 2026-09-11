@@ -24,6 +24,24 @@ For each AI interaction, create a new entry with the following structure:
 
 **Lessons Learned:** AI-generated tests still require careful review. Positive test cases alone do not prove that incorrect input is rejected. Writing and reviewing tests before implementation helped expose this gap before production code was added.
 
+---
+### 2026-09-10 - Basic JSON Flashcard Loader
+
+**Context:** I needed to load flashcards from a JSON file. I began with only the successful case so that file and structure validation could be introduced separately in later iterations.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I first asked Claude Code to create a test that loaded a valid JSON file containing flashcard objects. After confirming that the test failed because `data_loader.py` did not exist, I asked Claude Code to implement only the minimum loader needed to pass that test.
+
+**AI Response:** Claude Code created a test using pytest's `tmp_path` fixture and generated a `load_flashcards` function. The function opens a file using UTF-8, parses it with `json.load()`, and converts each item into a `Flashcard` object while preserving its position.
+
+**Changes Made:** I did not modify the generated implementation because it was simple, correctly scoped, and met the requirements for this iteration. I intentionally deferred validation and custom error handling.
+
+**Reasoning:** Implementing only the successful path made the basic data flow easy to understand and test. Missing-file, malformed-JSON, and structure-validation behavior will be added through separate failing tests instead of being introduced all at once.
+
+**Outcome:** The loader test passed, all 20 project tests passed, and total coverage reached 91%. Black, flake8, and mypy also completed successfully.
+
+**Lessons Learned:** A narrow prompt can keep AI-generated code focused and prevent complexity early in the development cycle. TDD also makes it clear which behaviors are implemented and which remain unsupported.
 
 ---
 
