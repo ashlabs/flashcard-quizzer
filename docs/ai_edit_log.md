@@ -45,6 +45,27 @@ For each AI interaction, create a new entry with the following structure:
 
 ---
 
+### 2026-09-10 - JSON Structure Validation
+
+**Context:** The loader could read valid JSON and handle missing or malformed files, but it did not validate the structure of the parsed data. Invalid data produced internal Python exceptions or created unusable flashcards.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I asked Claude Code to generate parameterized tests for invalid JSON structures, including an incorrect top-level type, missing fields, non-string values, and an empty deck. After reviewing the tests, I asked Claude Code to implement straightforward validation in `data_loader.py`.
+
+**AI Response:** Claude Code generated parameterized validation tests and implemented a `_parse_card` helper. The helper verifies that each card is an object, contains the required fields, and uses string values. The loader also verifies that the top-level JSON value is a list.
+
+**Changes Made:** During review, I noticed that the generated tests did not cover a list containing a non-object value, so I added that case. I also corrected a docstring typo. After implementation, I manually adjusted several long lines because Black's default 88-character limit conflicted with flake8's 79-character limit. I replaced a long list comprehension with a clear loop.
+
+**Reasoning:** Validating each list item prevents raw `TypeError` and `KeyError` exceptions from reaching users. The additional test ensures every level of the JSON structure is checked. The explicit loop improves readability and satisfies the project's style requirements.
+
+**Outcome:** All loader tests passed. Invalid structures now raise `FlashcardDataError` with helpful messages that identify the affected card or field. Black, flake8, mypy, and the full test suite passed.
+
+**Lessons Learned:** Parameterization reduces duplicated test code, but AI-generated test cases still require review for missing structural boundaries. Automated formatting and linting tools can also disagree, so passing one tool does not guarantee compliance with another.
+
+---
+
+
 ### Entry Template
 ```
 ## [Date] - [Brief Description]
