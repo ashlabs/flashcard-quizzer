@@ -85,6 +85,26 @@ For each AI interaction, create a new entry with the following structure:
 
 ---
 
+### 2026-09-10 - Random and Adaptive Quiz Strategies
+
+**Context:** After establishing the Strategy Pattern with sequential ordering, I needed to implement random ordering and adaptive ordering that prioritizes previously missed cards.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I asked Claude Code to generate tests for both strategies in one request. The random tests covered reproducible seeded shuffling, card preservation, input immutability, and empty decks. The adaptive tests covered missed-card priority, normalized matching, stable group order, unknown terms, input immutability, and empty decks. I then requested both implementations in one focused prompt.
+
+**AI Response:** Claude Code implemented `RandomStrategy` using a dedicated `random.Random` instance and implemented `AdaptiveStrategy` using normalized missed-front values. It separated missed and remaining cards into two lists to preserve their relative order.
+
+**Changes Made:** During review, I updated an outdated module docstring and separated standard-library and third-party imports. I also shortened two generated test names after flake8 found line-length violations. The production implementation was accepted without logical changes.
+
+**Reasoning:** A dedicated random-number generator makes seeded tests deterministic without modifying global random state. Normalizing missed terms with `strip()` and `casefold()` makes adaptive matching consistent with answer checking. Stable grouping makes the adaptive order predictable.
+
+**Outcome:** All 19 strategy tests passed. The complete project suite passed with 48 tests and 95% coverage. Black, flake8, and mypy passed after the test-name corrections.
+
+**Lessons Learned:** Closely related functionality can be generated and reviewed in one interaction without losing test-driven development discipline. Dependency isolation and deterministic behavior make randomized code easier to test reliably.
+
+---
+
 
 ### Entry Template
 ```
