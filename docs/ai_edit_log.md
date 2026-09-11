@@ -6,6 +6,27 @@
 
 For each AI interaction, create a new entry with the following structure:
 
+### 2026-09-10 - Flashcard Model Tests and Review
+
+**Context:** I needed to define the basic behavior of a flashcard before implementing the production model. I used a test-driven development approach so the tests would establish the expected interface and answer-comparison behavior.
+
+**AI Tool Used:** Claude Code
+
+**Prompt/Request:** I asked Claude Code to create only `tests/test_flashcard.py` for a `Flashcard` model with `front` and `back` fields and case-insensitive answer checking. I specifically requested that it not create or modify production code.
+
+**AI Response:** Claude Code created three tests covering storage of the front and back text, case-insensitive matching, and matching after removing surrounding whitespace.
+
+**Changes Made:** During review, I identified that the generated tests only covered correct answers. I requested an additional test named `test_is_correct_rejects_incorrect_answer` to verify that an unrelated answer returns `False`. I also shortened an overly long generated test name after `flake8` reported an E501 line-length violation.
+
+**Reasoning:** Without a negative test, an incorrect implementation that always returned `True` could pass the entire generated test suite. Adding the negative case made the behavioral contract more complete.
+
+**Outcome:** The tests initially failed with `ModuleNotFoundError` because the production model did not exist, confirming the expected red stage of test-driven development. Claude Code then created `models/__init__.py` and `models/flashcard.py`. All four flashcard tests passed, the complete suite passed with 19 tests, and total coverage reached 90%.
+
+**Lessons Learned:** AI-generated tests still require careful review. Positive test cases alone do not prove that incorrect input is rejected. Writing and reviewing tests before implementation helped expose this gap before production code was added.
+
+
+---
+
 ### Entry Template
 ```
 ## [Date] - [Brief Description]
