@@ -1,7 +1,9 @@
 # AI-Assisted Development Project Report
 
-**Student Name:** Ashwin Parthasarathy  
-**Project Title:** Flashcard Quizzer: AI-Assisted CLI Learning Application  
+**Student Name:** Ashwin Parthasarathy
+
+**Project Title:** Flashcard Quizzer: AI-Assisted CLI Learning Application
+
 **Date:** September 11, 2026
 
 ## Executive Summary
