@@ -185,7 +185,7 @@ This log documents the substantive interactions with Claude Code during developm
 
 ### What types of tasks did AI help with most effectively?
 
-Claude Code was most effective when given a narrow behavioral contract and a limited set of files. It quickly generated test scaffolding, simple production implementations, type annotations, docstrings, fixtures, parameterized cases, and test doubles. It was particularly useful for repetitive but structured work such as validating JSON fields and testing multiple implementations of the same strategy interface.
+Claude Code was most effective when given a narrow scope and a limited set of files. It quickly generated test scaffolding, simple production implementations, type annotations, docstrings, fixtures, parameterized cases, and test doubles. It was particularly useful for repetitive but structured work such as validating JSON fields and testing multiple implementations of the same strategy interface.
 
 ### Where did AI suggestions require modification?
 
@@ -193,7 +193,7 @@ The most frequent changes involved strengthening tests and aligning generated co
 
 ### What patterns appeared in the AI's strengths and weaknesses?
 
-The AI performed well when requirements were explicit, bounded, and supported by existing tests. It produced clear modular designs and generally respected requests not to modify unrelated files. Its main weakness was incomplete boundary coverage: generated tests often captured the primary successful behavior but omitted one important negative case or structural boundary. Generated formatting could also satisfy Black while conflicting with flake8 until the tools were configured consistently.
+The AI performed well when requirements were explicit, bounded, and supported by existing tests. It produced clear modular designs and generally respected requests not to modify unrelated files. Its main weakness was incomplete boundary coverage: generated tests often captured the primary successful behavior but omitted one important negative case or edge case scenario. Generated formatting could also satisfy Black while conflicting with flake8 until the tools were configured consistently.
 
 ### How did the prompting approach improve?
 

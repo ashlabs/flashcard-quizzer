@@ -21,7 +21,7 @@ The project demonstrates test-driven development (TDD), modular design, data val
 
 * Python 3.10 or later
 * pip
-* Git
+* git
 
 Python 3.10 or later is required because the application uses modern type annotation syntax such as `str | Path`.
 
@@ -77,12 +77,12 @@ A sample deck is available in `examples/server_acronyms.json`.
 
 The loader provides helpful error messages when:
 
-* The deck file does not exist
-* The file does not contain valid JSON
-* The top-level JSON value is not a list
-* A card is not an object
-* A card is missing `front` or `back`
-* Either field is not a string
+* The deck file does not exist.
+* The file does not contain valid JSON.
+* The top-level JSON value is not a list.
+* A card is not an object.
+* A card is missing `front` or `back`.
+* Either field is not a string.
 
 An empty JSON list is a valid data structure, but the command-line application will report that the deck has no cards to quiz.
 
